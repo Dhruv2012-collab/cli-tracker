@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.coverage
+.pytest_cache/
+tracker.db
+logs/
+export.json
+*.csv
