@@ -1,9 +1,11 @@
 from typing import List, Optional
-from sqlalchemy.orm import Session
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import Session, selectinload
+
 from src.models.habit import Habit
 from src.repositories.base import BaseRepository
+
 
 class HabitRepository(BaseRepository[Habit]):
     def __init__(self):

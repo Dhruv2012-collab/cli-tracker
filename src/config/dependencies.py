@@ -1,11 +1,14 @@
 from contextlib import contextmanager
 from typing import Generator
+
 from sqlalchemy.orm import Session
+
 from src.config.database import SessionLocal
-from src.services.user import user_service
-from src.services.task import task_service
 from src.services.focus_session import focus_service
 from src.services.habit import habit_service
+from src.services.task import task_service
+from src.services.user import user_service
+
 
 @contextmanager
 def get_db() -> Generator[Session, None, None]:

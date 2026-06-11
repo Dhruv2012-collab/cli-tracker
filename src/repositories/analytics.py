@@ -1,12 +1,13 @@
-from typing import Optional, Dict, Any, List
-from datetime import datetime, date, timedelta
-from sqlalchemy.orm import Session
-from sqlalchemy import select, func, and_, desc
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional
 
-from src.models.task import Task, TaskStatus
+from sqlalchemy import desc, func, select
+from sqlalchemy.orm import Session
+
 from src.models.focus_session import FocusSession
-from src.models.habit import Habit
+from src.models.task import Task, TaskStatus
 from src.repositories.base import BaseRepository
+
 
 class AnalyticsRepository(BaseRepository[Task]):
     def __init__(self):
@@ -23,7 +24,7 @@ class AnalyticsRepository(BaseRepository[Task]):
         if status:
             query = query.where(Task.status == status)
         return db.scalar(query) or 0
-        
+
     def get_completed_tasks_in_range(self, db: Session, user_id: int, start: datetime, end: datetime) -> int:
         """Count tasks completed within a datetime range (using updated_at as proxy for completion time)."""
         query = select(func.count(Task.id)).where(
@@ -87,10 +88,10 @@ class AnalyticsRepository(BaseRepository[Task]):
             Task.updated_at <= end,
             Task.category.is_not(None)
         ).group_by(Task.category).order_by(desc('completed_count')).limit(1)
-        
+
         result = db.execute(query).first()
         return result.category if result else None
-        
+
     def get_top_categories(self, db: Session, user_id: int, start: datetime, end: datetime, limit: int = 3) -> List[str]:
         query = select(
             Task.category
@@ -101,7 +102,7 @@ class AnalyticsRepository(BaseRepository[Task]):
             Task.updated_at <= end,
             Task.category.is_not(None)
         ).group_by(Task.category).order_by(desc(func.count(Task.id))).limit(limit)
-        
+
         return list(db.scalars(query).all())
 
 analytics_repo = AnalyticsRepository()

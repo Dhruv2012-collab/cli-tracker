@@ -1,7 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from datetime import date, datetime
 from typing import Optional
-from datetime import datetime, date
-from src.models.task import TaskStatus, TaskPriority
+
+from pydantic import BaseModel, ConfigDict
+
+from src.models.task import TaskPriority, TaskStatus
+
 
 class TaskBase(BaseModel):
     title: str

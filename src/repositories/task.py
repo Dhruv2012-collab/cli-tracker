@@ -1,10 +1,12 @@
-from typing import List, Optional
 from datetime import date
-from sqlalchemy.orm import Session
+from typing import List
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import Session, selectinload
+
 from src.models.task import Task, TaskStatus
 from src.repositories.base import BaseRepository
+
 
 class TaskRepository(BaseRepository[Task]):
     def __init__(self):

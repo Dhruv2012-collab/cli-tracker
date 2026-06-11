@@ -1,9 +1,11 @@
 from typing import Optional
-from sqlalchemy.orm import Session
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import Session, selectinload
+
 from src.models.user import User
 from src.repositories.base import BaseRepository
+
 
 class UserRepository(BaseRepository[User]):
     def __init__(self):

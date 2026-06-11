@@ -1,9 +1,13 @@
 import enum
-from datetime import datetime, date
+from datetime import date
 from typing import List, Optional
-from sqlalchemy import String, ForeignKey, Enum as SQLEnum, Text, Date
+
+from sqlalchemy import Date, ForeignKey, String, Text
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.database.core import Base, TimestampMixin
+
 
 class TaskStatus(str, enum.Enum):
     PENDING = "Pending"

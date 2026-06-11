@@ -1,12 +1,12 @@
-import pytest
 import os
+from unittest.mock import patch
+
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from src.database.core import Base
-from unittest.mock import patch
 
-import os
+from src.database.core import Base
 
 # We use an in-memory SQLite database for fast, isolated tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -18,17 +18,17 @@ def override_db_url():
 @pytest.fixture(scope="function")
 def engine():
     engine = create_engine(
-        SQLALCHEMY_DATABASE_URL, 
+        SQLALCHEMY_DATABASE_URL,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool
     )
     Base.metadata.create_all(bind=engine)
-    
+
     # Override app's engine globally
     import src.config.database
     src.config.database.engine = engine
     src.config.database.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    
+
     yield engine
     Base.metadata.drop_all(bind=engine)
 

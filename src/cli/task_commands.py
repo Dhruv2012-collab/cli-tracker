@@ -1,27 +1,28 @@
-import typer
-from typing import Optional
 from datetime import datetime
+
+import typer
 from rich.table import Table
-from src.cli.utils import console, display_error, display_success, get_active_user_id, UserNotFound, TaskNotFound
+
+from src.cli.utils import UserNotFound, console, display_error, display_success, get_active_user_id
 from src.config.dependencies import get_db, get_task_service
+from src.models.task import TaskPriority, TaskStatus
 from src.schemas.task import TaskCreate, TaskUpdate
-from src.models.task import TaskStatus, TaskPriority
 
 app = typer.Typer(help="Manage tasks")
 
 @app.command()
 def create(
     title: str,
-    description: Optional[str] = typer.Option(None, "--desc", "-d"),
-    priority: TaskPriority = typer.Option(TaskPriority.MEDIUM, "--priority", "-p"),
-    category: Optional[str] = typer.Option(None, "--category", "-c"),
-    due_date: Optional[str] = typer.Option(None, "--due", "-D", help="YYYY-MM-DD")
+    description: str = typer.Option(None, "--desc", "-d", help="Description"),
+    priority: TaskPriority = typer.Option(TaskPriority.MEDIUM, "--priority", "-p", help="Priority"),
+    category: str = typer.Option(None, "--category", "-c", help="Category"),
+    due_date: str = typer.Option(None, "--due", "-D", help="YYYY-MM-DD")
 ):
     """Create a new task."""
     try:
         user_id = get_active_user_id()
         parsed_due = datetime.strptime(due_date, "%Y-%m-%d").date() if due_date else None
-        
+
         task_in = TaskCreate(
             title=title,
             description=description,
@@ -30,37 +31,37 @@ def create(
             due_date=parsed_due,
             user_id=user_id
         )
-        
+
         service = get_task_service()
         with get_db() as db:
             task = service.create_task(db, task_in)
             display_success(f"Task created with ID {task.id}: '{task.title}'")
     except UserNotFound as e:
         display_error(str(e))
-    except ValueError as e:
+    except ValueError:
         display_error(f"Invalid date format: {due_date}. Use YYYY-MM-DD.")
 
 @app.command("list")
 def list_tasks(
-    status: Optional[TaskStatus] = typer.Option(None, "--status", "-s"),
-    priority: Optional[TaskPriority] = typer.Option(None, "--priority", "-p"),
-    category: Optional[str] = typer.Option(None, "--category", "-c")
+    status: TaskStatus = typer.Option(None, "--status", "-s", help="Filter by status"),
+    priority: TaskPriority = typer.Option(None, "--priority", "-p", help="Filter by priority"),
+    category: str = typer.Option(None, "--category", "-c", help="Filter by category")
 ):
     """List tasks with optional filters."""
     try:
         user_id = get_active_user_id()
         service = get_task_service()
-        
+
         with get_db() as db:
             tasks = service.get_user_tasks(db, user_id)
-            
+
             if status:
                 tasks = [t for t in tasks if t.status == status]
             if priority:
                 tasks = [t for t in tasks if t.priority == priority]
             if category:
                 tasks = [t for t in tasks if t.category == category]
-            
+
             if not tasks:
                 console.print("No tasks found.")
                 return
@@ -76,7 +77,7 @@ def list_tasks(
             for t in tasks:
                 status_color = "green" if t.status == TaskStatus.COMPLETED else "yellow"
                 priority_color = "red" if t.priority == TaskPriority.CRITICAL else "white"
-                
+
                 table.add_row(
                     str(t.id),
                     t.title,
@@ -86,33 +87,36 @@ def list_tasks(
                     str(t.due_date) if t.due_date else "-"
                 )
             console.print(table)
-            
+
     except UserNotFound as e:
         display_error(str(e))
 
 @app.command()
 def update(
     task_id: int,
-    title: Optional[str] = typer.Option(None, "--title", "-t"),
-    status: Optional[TaskStatus] = typer.Option(None, "--status", "-s"),
-    priority: Optional[TaskPriority] = typer.Option(None, "--priority", "-p")
+    title: str = typer.Option(None, "--title", "-t", help="New title"),
+    status: TaskStatus = typer.Option(None, "--status", "-s", help="New status"),
+    priority: TaskPriority = typer.Option(None, "--priority", "-p", help="New priority")
 ):
     """Update an existing task."""
     try:
-        user_id = get_active_user_id()
+        get_active_user_id()
         service = get_task_service()
-        
+
         update_data = {}
-        if title is not None: update_data["title"] = title
-        if status is not None: update_data["status"] = status
-        if priority is not None: update_data["priority"] = priority
-        
+        if title is not None:
+            update_data["title"] = title
+        if status is not None:
+            update_data["status"] = status
+        if priority is not None:
+            update_data["priority"] = priority
+
         if not update_data:
             display_error("No fields provided to update.")
             return
 
         task_in = TaskUpdate(**update_data)
-        
+
         with get_db() as db:
             # We should verify task belongs to user, but for simplicity we rely on task_id
             task = service.update_task(db, task_id, task_in)
@@ -120,7 +124,7 @@ def update(
                 display_error(f"Task {task_id} not found.")
                 return
             display_success(f"Task {task_id} updated.")
-            
+
     except UserNotFound as e:
         display_error(str(e))
 
@@ -130,14 +134,14 @@ def delete(task_id: int):
     try:
         get_active_user_id() # verify logged in
         service = get_task_service()
-        
+
         with get_db() as db:
             success = service.delete_task(db, task_id)
             if success:
                 display_success(f"Task {task_id} deleted.")
             else:
                 display_error(f"Task {task_id} not found.")
-                
+
     except UserNotFound as e:
         display_error(str(e))
 
@@ -147,13 +151,13 @@ def complete(task_id: int):
     try:
         get_active_user_id() # verify logged in
         service = get_task_service()
-        
+
         with get_db() as db:
             task = service.mark_complete(db, task_id)
             if task:
                 display_success(f"Task {task_id} marked as completed.")
             else:
                 display_error(f"Task {task_id} not found.")
-                
+
     except UserNotFound as e:
         display_error(str(e))

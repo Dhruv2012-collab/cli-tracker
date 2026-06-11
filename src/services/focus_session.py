@@ -1,10 +1,13 @@
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from sqlalchemy.orm import Session
-from src.repositories.focus_session import focus_session_repo
-from src.schemas.focus_session import FocusSessionCreate, FocusSessionInDB
+
 from src.cli.utils import ActiveSessionExists
 from src.config.logging import logger
+from src.repositories.focus_session import focus_session_repo
+from src.schemas.focus_session import FocusSessionCreate, FocusSessionInDB
+
 
 class FocusService:
     def start_session(self, db: Session, task_id: int) -> FocusSessionInDB:
@@ -16,9 +19,9 @@ class FocusService:
         try:
             session = focus_session_repo.create(db, session_in.model_dump())
             return FocusSessionInDB.model_validate(session)
-        except Exception:
+        except Exception as e:
             logger.exception("Failed to start focus session")
-            raise
+            raise e
 
     def stop_session(self, db: Session, task_id: int) -> Optional[FocusSessionInDB]:
         active = focus_session_repo.get_active_session(db, task_id)
@@ -34,8 +37,8 @@ class FocusService:
                 db, active, {"end_time": end_time, "duration": duration_minutes}
             )
             return FocusSessionInDB.model_validate(session)
-        except Exception:
+        except Exception as e:
             logger.exception("Failed to stop focus session")
-            raise
+            raise e
 
 focus_service = FocusService()

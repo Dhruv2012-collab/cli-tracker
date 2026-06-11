@@ -1,10 +1,11 @@
 from typing import List, Optional
-from datetime import datetime
-from sqlalchemy.orm import Session
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import Session, selectinload
+
 from src.models.focus_session import FocusSession
 from src.repositories.base import BaseRepository
+
 
 class FocusSessionRepository(BaseRepository[FocusSession]):
     def __init__(self):

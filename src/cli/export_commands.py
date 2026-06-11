@@ -1,7 +1,9 @@
-import typer
 from typing import Optional
-from src.cli.utils import console, get_active_user_id, display_error, display_success, UserNotFound
-from src.config.dependencies import get_db, get_analytics_service
+
+import typer
+
+from src.cli.utils import UserNotFound, display_error, display_success, get_active_user_id
+from src.config.dependencies import get_analytics_service, get_db
 
 app = typer.Typer(help="Export user data to various formats")
 

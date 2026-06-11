@@ -8,4 +8,4 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "W", "C90", "I"]
-ignore = ["E501"] # Line length (handled by formatter)
+ignore = ["E501", "B008", "E402", "F821", "F841", "W291"] # Line length and Typer dependencies

@@ -1,6 +1,7 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os
+from logging.handlers import RotatingFileHandler
+
 
 def setup_logging():
     log_dir = "logs"
@@ -8,7 +9,7 @@ def setup_logging():
         os.makedirs(log_dir)
 
     log_file = os.path.join(log_dir, "tracker.log")
-    
+
     logger = logging.getLogger("tracker")
     logger.setLevel(logging.INFO)
 

@@ -1,6 +1,6 @@
 import json
-import os
 from pathlib import Path
+
 from rich.console import Console
 from rich.panel import Panel
 
@@ -30,8 +30,8 @@ def get_active_user_id() -> int:
             if not user_id:
                 raise UserNotFound("No active user set.")
             return user_id
-    except (json.JSONDecodeError, IOError):
-        raise UserNotFound("Error reading user configuration.")
+    except (json.JSONDecodeError, IOError) as e:
+        raise UserNotFound("Error reading user configuration.") from e
 
 def set_active_user_id(user_id: int):
     with open(CONFIG_FILE, "w") as f:

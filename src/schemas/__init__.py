@@ -1,7 +1,7 @@
-from src.schemas.user import UserCreate, UserUpdate, UserInDB
-from src.schemas.task import TaskCreate, TaskUpdate, TaskInDB
-from src.schemas.focus_session import FocusSessionCreate, FocusSessionUpdate, FocusSessionInDB
-from src.schemas.habit import HabitCreate, HabitUpdate, HabitInDB
+from src.schemas.focus_session import FocusSessionCreate, FocusSessionInDB, FocusSessionUpdate
+from src.schemas.habit import HabitCreate, HabitInDB, HabitUpdate
+from src.schemas.task import TaskCreate, TaskInDB, TaskUpdate
+from src.schemas.user import UserCreate, UserInDB, UserUpdate
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserInDB",
